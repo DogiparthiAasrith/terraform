@@ -1,0 +1,75 @@
+name: "Terraform Deployment"
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform'
+        required: true
+        type: choice
+        options:
+          - plan
+          - plan-and-apply
+          - plan-and-destroy
+      destroy_confirm:
+        description: 'For DESTROY only: Type "DELETE" to confirm'
+        required: false
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  terraform:
+    name: "Terraform Execution"
+    runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: ./environments/dev
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.7.5" 
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        if: github.event.inputs.action == 'plan' || github.event.inputs.action == 'plan-and-apply'
+        run: terraform plan -out=tfplan
+
+      - name: Terraform Apply
+        if: github.event.inputs.action == 'plan-and-apply'
+        run: terraform apply -auto-approve tfplan
+
+      - name: Check Destroy Confirmation
+        if: github.event.inputs.action == 'plan-and-destroy' && github.event.inputs.destroy_confirm != 'DELETE'
+        run: |
+          echo "❌ Destroy operation aborted. You must type 'DELETE' to confirm destruction."
+          exit 1
+
+      - name: Terraform Plan (Destroy)
+        if: github.event.inputs.action == 'plan-and-destroy' && github.event.inputs.destroy_confirm == 'DELETE'
+        run: terraform plan -destroy -out=tfplan
+
+      - name: Terraform Destroy
+        if: github.event.inputs.action == 'plan-and-destroy' && github.event.inputs.destroy_confirm == 'DELETE'
+        run: terraform apply -auto-approve tfplan

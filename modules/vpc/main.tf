@@ -1,0 +1,52 @@
+resource "aws_vpc" "main" {
+  cidr_block = var.vpc_cidr
+
+  tags = {
+    Name      = "${var.project_name}-${var.environment}-vpc"
+    CreatedBy = "Aasrith"
+  }
+}
+
+resource "aws_subnet" "public1" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.1.0/24"
+  availability_zone = "ap-south-1a"
+
+  tags = {
+    Name      = "${var.project_name}-public-1"
+    CreatedBy = "Aasrith"
+  }
+}
+
+resource "aws_subnet" "public2" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.2.0/24"
+  availability_zone = "ap-south-1b"
+
+  tags = {
+    Name      = "${var.project_name}-public-2"
+    CreatedBy = "Aasrith"
+  }
+}
+
+resource "aws_subnet" "private1" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.3.0/24"
+  availability_zone = "ap-south-1a"
+
+  tags = {
+    Name      = "${var.project_name}-private-1"
+    CreatedBy = "Aasrith"
+  }
+}
+
+resource "aws_subnet" "private2" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.4.0/24"
+  availability_zone = "ap-south-1b"
+
+  tags = {
+    Name      = "${var.project_name}-private-2"
+    CreatedBy = "Aasrith"
+  }
+}
