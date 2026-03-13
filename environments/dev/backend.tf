@@ -4,7 +4,7 @@ terraform {
   backend "s3" {
     bucket  = "terraform-state-bucket-week4"
     key     = "dev/terraform.tfstate"
-    region  = "ap-south-1"
+    region  = "us-east-1"
 
     # NEW: Enables native S3 locking without DynamoDB
     use_lockfile = true
