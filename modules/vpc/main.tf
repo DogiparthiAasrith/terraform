@@ -87,3 +87,12 @@ resource "aws_route_table_association" "public2" {
   subnet_id      = aws_subnet.public2.id
   route_table_id = aws_route_table.public.id
 }
+
+resource "aws_ec2_instance_connect_endpoint" "eice" {
+  subnet_id = aws_subnet.private1.id
+
+  tags = {
+    Name      = "${var.project_name}-eice"
+    CreatedBy = "Aasrith"
+  }
+}

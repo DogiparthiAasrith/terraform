@@ -15,3 +15,7 @@ output "private_subnets" {
     aws_subnet.private2.id
   ]
 }
+
+output "vpc_cidr" {
+  value = aws_vpc.main.cidr_block
+}

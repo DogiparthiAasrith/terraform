@@ -24,4 +24,5 @@ module "autoscaling" {
   target_group_arn = module.alb.target_group_arn
   vpc_id           = module.vpc.vpc_id
   alb_sg_id        = module.alb.alb_sg_id
+  vpc_cidr         = module.vpc.vpc_cidr
 }

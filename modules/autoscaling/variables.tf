@@ -27,3 +27,8 @@ variable "alb_sg_id" {
   description = "Security Group ID of the Application Load Balancer"
   type        = string
 }
+
+variable "vpc_cidr" {
+  description = "CIDR block of the VPC for security group rules"
+  type        = string
+}
