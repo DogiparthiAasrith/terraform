@@ -13,7 +13,11 @@ resource "aws_lb" "alb" {
   }
 
   tags = {
-    CreatedBy = "Aasrith"
+    Name        = "${var.project_name}-alb"
+    CreatedBy   = "Aasrith"
+    Environment = "Dev"
+    Project     = "Week 4"
+    Purpose     = "Training Plan"
   }
 }
 
@@ -39,7 +43,11 @@ resource "aws_security_group" "alb_sg" {
   }
 
   tags = {
-    CreatedBy = "Aasrith"
+    Name        = "${var.project_name}-alb-sg"
+    CreatedBy   = "Aasrith"
+    Environment = "Dev"
+    Project     = "Week 4"
+    Purpose     = "Training Plan"
   }
 }
 
@@ -58,7 +66,11 @@ resource "aws_lb_target_group" "tg" {
   }
 
   tags = {
-    CreatedBy = "Aasrith"
+    Name        = "${var.project_name}-tg"
+    CreatedBy   = "Aasrith"
+    Environment = "Dev"
+    Project     = "Week 4"
+    Purpose     = "Training Plan"
   }
 }
 

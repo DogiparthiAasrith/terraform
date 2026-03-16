@@ -38,7 +38,11 @@ resource "aws_security_group" "ec2_sg" {
   }
 
   tags = {
-    CreatedBy = "Aasrith"
+    Name        = "${var.project_name}-ec2-sg"
+    CreatedBy   = "Aasrith"
+    Environment = "Dev"
+    Project     = "Week 4"
+    Purpose     = "Training Plan"
   }
 }
 
@@ -60,7 +64,11 @@ resource "aws_launch_template" "lt" {
     resource_type = "instance"
 
     tags = {
-      CreatedBy = "Aasrith"
+      Name        = "${var.project_name}-instance"
+      CreatedBy   = "Aasrith"
+      Environment = "Dev"
+      Project     = "Week 4"
+      Purpose     = "Training Plan"
     }
   }
 }
@@ -79,8 +87,32 @@ resource "aws_autoscaling_group" "asg" {
   }
 
   tag {
+    key                 = "Name"
+    value               = "${var.project_name}-asg"
+    propagate_at_launch = true
+  }
+
+  tag {
     key                 = "CreatedBy"
     value               = "Aasrith"
+    propagate_at_launch = true
+  }
+
+  tag {
+    key                 = "Environment"
+    value               = "Dev"
+    propagate_at_launch = true
+  }
+
+  tag {
+    key                 = "Project"
+    value               = "Week 4"
+    propagate_at_launch = true
+  }
+
+  tag {
+    key                 = "Purpose"
+    value               = "Training Plan"
     propagate_at_launch = true
   }
 }

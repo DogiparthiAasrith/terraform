@@ -4,8 +4,11 @@ resource "aws_vpc" "main" {
   enable_dns_hostnames = true
 
   tags = {
-    Name      = "${var.project_name}-${var.environment}-vpc"
-    CreatedBy = "Aasrith"
+    Name        = "${var.project_name}-${var.environment}-vpc"
+    CreatedBy   = "Aasrith"
+    Environment = "Dev"
+    Project     = "Week 4"
+    Purpose     = "Training Plan"
   }
 }
 
@@ -15,8 +18,11 @@ resource "aws_subnet" "public1" {
   availability_zone = "us-east-1a"
 
   tags = {
-    Name      = "${var.project_name}-public-1"
-    CreatedBy = "Aasrith"
+    Name        = "${var.project_name}-public-1"
+    CreatedBy   = "Aasrith"
+    Environment = "Dev"
+    Project     = "Week 4"
+    Purpose     = "Training Plan"
   }
 }
 
@@ -26,8 +32,11 @@ resource "aws_subnet" "public2" {
   availability_zone = "us-east-1b"
 
   tags = {
-    Name      = "${var.project_name}-public-2"
-    CreatedBy = "Aasrith"
+    Name        = "${var.project_name}-public-2"
+    CreatedBy   = "Aasrith"
+    Environment = "Dev"
+    Project     = "Week 4"
+    Purpose     = "Training Plan"
   }
 }
 
@@ -37,8 +46,11 @@ resource "aws_subnet" "private1" {
   availability_zone = "us-east-1a"
 
   tags = {
-    Name      = "${var.project_name}-private-1"
-    CreatedBy = "Aasrith"
+    Name        = "${var.project_name}-private-1"
+    CreatedBy   = "Aasrith"
+    Environment = "Dev"
+    Project     = "Week 4"
+    Purpose     = "Training Plan"
   }
 }
 
@@ -48,8 +60,11 @@ resource "aws_subnet" "private2" {
   availability_zone = "us-east-1b"
 
   tags = {
-    Name      = "${var.project_name}-private-2"
-    CreatedBy = "Aasrith"
+    Name        = "${var.project_name}-private-2"
+    CreatedBy   = "Aasrith"
+    Environment = "Dev"
+    Project     = "Week 4"
+    Purpose     = "Training Plan"
   }
 }
 
@@ -61,8 +76,11 @@ resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name      = "${var.project_name}-igw"
-    CreatedBy = "Aasrith"
+    Name        = "${var.project_name}-igw"
+    CreatedBy   = "Aasrith"
+    Environment = "Dev"
+    Project     = "Week 4"
+    Purpose     = "Training Plan"
   }
 }
 
@@ -75,8 +93,11 @@ resource "aws_route_table" "public" {
   }
 
   tags = {
-    Name      = "${var.project_name}-public-rt"
-    CreatedBy = "Aasrith"
+    Name        = "${var.project_name}-public-rt"
+    CreatedBy   = "Aasrith"
+    Environment = "Dev"
+    Project     = "Week 4"
+    Purpose     = "Training Plan"
   }
 }
 
@@ -104,7 +125,11 @@ resource "aws_security_group" "eice_sg" {
   }
 
   tags = {
-    CreatedBy = "Aasrith"
+    Name        = "${var.project_name}-eice-sg"
+    CreatedBy   = "Aasrith"
+    Environment = "Dev"
+    Project     = "Week 4"
+    Purpose     = "Training Plan"
   }
 }
 
@@ -113,8 +138,11 @@ resource "aws_ec2_instance_connect_endpoint" "eice" {
   security_group_ids = [aws_security_group.eice_sg.id]
 
   tags = {
-    Name      = "${var.project_name}-eice"
-    CreatedBy = "Aasrith"
+    Name        = "${var.project_name}-eice"
+    CreatedBy   = "Aasrith"
+    Environment = "Dev"
+    Project     = "Week 4"
+    Purpose     = "Training Plan"
   }
 }
 
