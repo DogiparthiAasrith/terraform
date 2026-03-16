@@ -95,4 +95,4 @@ resource "aws_ec2_instance_connect_endpoint" "eice" {
     Name      = "${var.project_name}-eice"
     CreatedBy = "Aasrith"
   }
-}
+}
