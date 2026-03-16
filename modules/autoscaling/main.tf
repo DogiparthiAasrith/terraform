@@ -18,7 +18,7 @@ data "aws_ami" "amazon_linux" {
 }
 
 resource "aws_launch_template" "lt" {
-  name = "${var.project_name}-lt"
+  name_prefix   = "${var.project_name}-lt-"
   
   image_id      = data.aws_ami.amazon_linux.id
   instance_type = "t2.micro"
@@ -40,7 +40,7 @@ resource "aws_launch_template" "lt" {
     resource_type = "instance"
 
     tags = merge(local.common_tags, {
-      Name = "${var.project_name}-instance"
+      Name = "${var.project_name}-${var.environment}-instance"
     })
   }
 
@@ -48,19 +48,24 @@ resource "aws_launch_template" "lt" {
     resource_type = "volume"
 
     tags = merge(local.common_tags, {
-      Name = "${var.project_name}-instance-volume"
+      Name = "${var.project_name}-${var.environment}-instance-volume"
     })
   }
 
   tags = merge(local.common_tags, {
-    Name = "${var.project_name}-lt"
+    Name = "${var.project_name}-${var.environment}-lt"
   })
 
   update_default_version = true
+
+  # Ensure the previous LT is destroyed before creating a new one if name conflicts
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_autoscaling_group" "asg" {
-  name                = "${var.project_name}-asg"
+  name                = "${var.project_name}-${var.environment}-asg"
   vpc_zone_identifier = var.private_subnets
   desired_capacity    = 2
   max_size            = 3
@@ -68,12 +73,12 @@ resource "aws_autoscaling_group" "asg" {
   target_group_arns   = [var.target_group_arn]
 
   launch_template {
-    id      = aws_launch_template.lt.arn
-    version = "$Default"
+    id      = aws_launch_template.lt.id
+    version = "$Latest"
   }
 
   dynamic "tag" {
-    for_each = merge(local.common_tags, { Name = "${var.project_name}-asg" })
+    for_each = merge(local.common_tags, { Name = "${var.project_name}-${var.environment}-asg" })
     content {
       key                 = tag.key
       value               = tag.value
