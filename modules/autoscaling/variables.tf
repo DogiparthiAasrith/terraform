@@ -17,3 +17,13 @@ variable "target_group_arn" {
   description = "Target group ARN for the ALB"
   type        = string
 }
+
+variable "vpc_id" {
+  description = "VPC ID where the EC2 instances will run"
+  type        = string
+}
+
+variable "alb_sg_id" {
+  description = "Security Group ID of the Application Load Balancer"
+  type        = string
+}

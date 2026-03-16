@@ -18,8 +18,10 @@ module "alb" {
 module "autoscaling" {
   source = "../../modules/autoscaling"
 
-  project_name = var.project_name
-  environment  = var.environment
-  private_subnets = module.vpc.private_subnets
+  project_name     = var.project_name
+  environment      = var.environment
+  private_subnets  = module.vpc.private_subnets
   target_group_arn = module.alb.target_group_arn
+  vpc_id           = module.vpc.vpc_id
+  alb_sg_id        = module.alb.alb_sg_id
 }
