@@ -18,15 +18,18 @@ data "aws_ami" "amazon_linux" {
 }
 
 resource "aws_launch_template" "lt" {
-  name_prefix   = "${var.project_name}-lt-"
+  name = "${var.project_name}-lt"
   
   image_id      = data.aws_ami.amazon_linux.id
   instance_type = "t2.micro"
 
-  network_interfaces {
-    device_index                = 0
-    associate_public_ip_address = false
-    security_groups             = [var.security_group_id]
+  vpc_security_group_ids = [var.security_group_id]
+
+  # Enforce IMDSv2 (Self-Paced Lab / Security best practice requirement)
+  metadata_options {
+    http_endpoint               = "enabled"
+    http_tokens                 = "required"
+    http_put_response_hop_limit = 1
   }
 
   user_data = base64encode(<<-EOF
@@ -37,35 +40,25 @@ resource "aws_launch_template" "lt" {
   )
 
   tag_specifications {
-    resource_type = "instance"
-
-    tags = merge(local.common_tags, {
-      Name = "${var.project_name}-${var.environment}-instance"
-    })
-  }
-
-  tag_specifications {
     resource_type = "volume"
-
     tags = merge(local.common_tags, {
-      Name = "${var.project_name}-${var.environment}-instance-volume"
+      Name = "${var.project_name}-instance-volume"
     })
   }
 
   tags = merge(local.common_tags, {
-    Name = "${var.project_name}-${var.environment}-lt"
+    Name = "${var.project_name}-lt"
   })
 
   update_default_version = true
 
-  # Ensure the previous LT is destroyed before creating a new one if name conflicts
   lifecycle {
     create_before_destroy = true
   }
 }
 
 resource "aws_autoscaling_group" "asg" {
-  name                = "${var.project_name}-${var.environment}-asg"
+  name                = "${var.project_name}-asg"
   vpc_zone_identifier = var.private_subnets
   desired_capacity    = 2
   max_size            = 3
@@ -78,7 +71,7 @@ resource "aws_autoscaling_group" "asg" {
   }
 
   dynamic "tag" {
-    for_each = merge(local.common_tags, { Name = "${var.project_name}-${var.environment}-asg" })
+    for_each = merge(local.common_tags, { Name = "${var.project_name}-asg" })
     content {
       key                 = tag.key
       value               = tag.value
