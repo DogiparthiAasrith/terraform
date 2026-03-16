@@ -21,15 +21,24 @@ resource "aws_launch_template" "lt" {
   name_prefix = "${var.project_name}-lt-"
   
   image_id      = data.aws_ami.amazon_linux.id
-  instance_type = "t2.micro"
+  instance_type = "t3.micro" # Often required in restricted cloud environments
 
   vpc_security_group_ids = [var.security_group_id]
 
-  # Enforce IMDSv2 (Self-Paced Lab / Security best practice requirement)
+  # Enforce IMDSv2 (Standard security policy requirement)
   metadata_options {
     http_endpoint               = "enabled"
     http_tokens                 = "required"
     http_put_response_hop_limit = 1
+  }
+
+  # Encrypted volumes are often required by Service Control Policies (SCPs)
+  block_device_mappings {
+    device_name = "/dev/xvda"
+    ebs {
+      volume_size = 8
+      encrypted   = true
+    }
   }
 
   user_data = base64encode(<<-EOF
@@ -39,15 +48,17 @@ resource "aws_launch_template" "lt" {
               EOF
   )
 
+  # Instance tags in LT are checked during the RunInstances call
   tag_specifications {
-    resource_type = "volume"
+    resource_type = "instance"
     tags = merge(local.common_tags, {
-      Name = "${var.project_name}-instance-volume"
+      Name = "${var.project_name}-${var.environment}-instance"
     })
   }
 
+  # Ensure the LT itself has all mandatory tags
   tags = merge(local.common_tags, {
-    Name = "${var.project_name}-lt"
+    Name = "${var.project_name}-${var.environment}-lt"
   })
 
   update_default_version = true
@@ -58,7 +69,7 @@ resource "aws_launch_template" "lt" {
 }
 
 resource "aws_autoscaling_group" "asg" {
-  name                = "${var.project_name}-asg"
+  name                = "${var.project_name}-${var.environment}-asg"
   vpc_zone_identifier = var.private_subnets
   desired_capacity    = 2
   max_size            = 3
@@ -67,11 +78,11 @@ resource "aws_autoscaling_group" "asg" {
 
   launch_template {
     id      = aws_launch_template.lt.id
-    version = "$Latest"
+    version = "$Default"
   }
 
   dynamic "tag" {
-    for_each = merge(local.common_tags, { Name = "${var.project_name}-asg" })
+    for_each = merge(local.common_tags, { Name = "${var.project_name}-${var.environment}-asg" })
     content {
       key                 = tag.key
       value               = tag.value
