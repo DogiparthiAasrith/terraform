@@ -40,6 +40,22 @@ resource "aws_launch_template" "lt" {
     })
   }
 
+  tag_specifications {
+    resource_type = "volume"
+
+    tags = merge(local.common_tags, {
+      Name = "${var.project_name}-instance-volume"
+    })
+  }
+
+  tag_specifications {
+    resource_type = "network-interface"
+
+    tags = merge(local.common_tags, {
+      Name = "${var.project_name}-instance-nic"
+    })
+  }
+
   tags = merge(local.common_tags, {
     Name = "${var.project_name}-lt"
   })
@@ -58,33 +74,12 @@ resource "aws_autoscaling_group" "asg" {
     version = "$Latest"
   }
 
-  tag {
-    key                 = "Name"
-    value               = "${var.project_name}-asg"
-    propagate_at_launch = true
-  }
-
-  tag {
-    key                 = "CreatedBy"
-    value               = "Aasrith"
-    propagate_at_launch = true
-  }
-
-  tag {
-    key                 = "Environment"
-    value               = "dev"
-    propagate_at_launch = true
-  }
-
-  tag {
-    key                 = "Project"
-    value               = "week4"
-    propagate_at_launch = true
-  }
-
-  tag {
-    key                 = "Purpose"
-    value               = "Training Plan"
-    propagate_at_launch = true
+  dynamic "tag" {
+    for_each = merge(local.common_tags, { Name = "${var.project_name}-asg" })
+    content {
+      key                 = tag.key
+      value               = tag.value
+      propagate_at_launch = true
+    }
   }
 }
