@@ -1,5 +1,5 @@
 variable "project_name" {
-  description = "Project name used for naming resources"
+  description = "Project name"
   type        = string
 }
 
@@ -9,31 +9,21 @@ variable "environment" {
 }
 
 variable "private_subnets" {
-  description = "Private subnet IDs where EC2 instances will run"
+  description = "List of private subnet IDs"
   type        = list(string)
 }
 
 variable "target_group_arn" {
-  description = "Target group ARN for the ALB"
+  description = "Target group ARN"
   type        = string
 }
 
 variable "vpc_id" {
-  description = "VPC ID where the EC2 instances will run"
+  description = "VPC ID"
   type        = string
 }
 
-variable "alb_sg_id" {
-  description = "Security Group ID of the Application Load Balancer"
-  type        = string
-}
-
-variable "vpc_cidr" {
-  description = "CIDR block of the VPC for security group rules"
-  type        = string
-}
-
-variable "eice_sg_id" {
-  description = "Security group ID of the EC2 Instance Connect Endpoint"
+variable "security_group_id" {
+  description = "Security group ID to use for EC2 instances"
   type        = string
 }

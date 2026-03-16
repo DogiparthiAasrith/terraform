@@ -17,46 +17,13 @@ data "aws_ami" "amazon_linux" {
   }
 }
 
-resource "aws_security_group" "ec2_sg" {
-  name        = "${var.project_name}-ec2-sg"
-  description = "Security group for EC2 instances"
-  vpc_id      = var.vpc_id
-
-  ingress {
-    description     = "Allow HTTP inbound from ALB"
-    from_port       = 80
-    to_port         = 80
-    protocol        = "tcp"
-    security_groups = [var.alb_sg_id]
-  }
-
-  ingress {
-    description     = "Allow SSH from EICE security group"
-    from_port       = 22
-    to_port         = 22
-    protocol        = "tcp"
-    security_groups = [var.eice_sg_id]
-  }
-
-  egress {
-    description = "Allow all outbound traffic"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = merge(local.common_tags, {
-    Name = "${var.project_name}-ec2-sg"
-  })
-}
-
 resource "aws_launch_template" "lt" {
   name_prefix   = "${var.project_name}-lt"
   image_id      = data.aws_ami.amazon_linux.id
   instance_type = "t2.micro"
 
-  vpc_security_group_ids = [aws_security_group.ec2_sg.id]
+  # Use passed security group ID
+  vpc_security_group_ids = [var.security_group_id]
 
   user_data = base64encode(<<-EOF
               #!/bin/bash

@@ -59,7 +59,42 @@ resource "aws_subnet" "private2" {
 
 resource "aws_default_security_group" "default" {
   vpc_id = aws_vpc.main.id
+
+  # Rule for ALB: Allow public HTTP traffic
+  ingress {
+    protocol    = "tcp"
+    from_port   = 80
+    to_port     = 80
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow HTTP from internet"
+  }
+
+  # Rule for EC2: Allow SSH from within the SG (for EICE)
+  ingress {
+    protocol  = "tcp"
+    from_port = 22
+    to_port   = 22
+    self      = true
+    description = "Allow SSH from EICE in same SG"
+  }
   
+  # Rule for EC2: Allow HTTP from within the SG (for ALB to Target Group)
+  ingress {
+    protocol  = "tcp"
+    from_port = 80
+    to_port   = 80
+    self      = true
+    description = "Allow HTTP from ALB in same SG"
+  }
+
+  # Egress: Allow all outbound
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   tags = merge(local.common_tags, {
     Name = "${var.project_name}-default-sg"
   })
@@ -96,27 +131,10 @@ resource "aws_route_table_association" "public2" {
   route_table_id = aws_route_table.public.id
 }
 
-resource "aws_security_group" "eice_sg" {
-  name        = "${var.project_name}-eice-sg"
-  description = "Security group for EC2 Instance Connect Endpoint"
-  vpc_id      = aws_vpc.main.id
-
-  egress {
-    description = "Allow SSH outbound to VPC"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr]
-  }
-
-  tags = merge(local.common_tags, {
-    Name = "${var.project_name}-eice-sg"
-  })
-}
-
 resource "aws_ec2_instance_connect_endpoint" "eice" {
   subnet_id          = aws_subnet.private1.id
-  security_group_ids = [aws_security_group.eice_sg.id]
+  # Using the default SG to avoid CreateSecurityGroup error
+  security_group_ids = [aws_default_security_group.default.id]
 
   tags = merge(local.common_tags, {
     Name = "${var.project_name}-eice"
