@@ -18,11 +18,10 @@ data "aws_ami" "amazon_linux" {
 }
 
 resource "aws_launch_template" "lt" {
-  name_prefix   = "${var.project_name}-lt"
+  name = "${var.project_name}-lt"
   image_id      = data.aws_ami.amazon_linux.id
   instance_type = "t2.micro"
 
-  # Use passed security group ID
   vpc_security_group_ids = [var.security_group_id]
 
   user_data = base64encode(<<-EOF
@@ -32,14 +31,7 @@ resource "aws_launch_template" "lt" {
               EOF
   )
 
-  tag_specifications {
-    resource_type = "instance"
-
-    tags = merge(local.common_tags, {
-      Name = "${var.project_name}-instance"
-    })
-  }
-
+  # Removed tag_specifications for instance to avoid conflict with ASG tags
   tag_specifications {
     resource_type = "volume"
 
@@ -59,6 +51,8 @@ resource "aws_launch_template" "lt" {
   tags = merge(local.common_tags, {
     Name = "${var.project_name}-lt"
   })
+
+  update_default_version = true
 }
 
 resource "aws_autoscaling_group" "asg" {
@@ -70,7 +64,7 @@ resource "aws_autoscaling_group" "asg" {
   target_group_arns   = [var.target_group_arn]
 
   launch_template {
-    id      = aws_launch_template.lt.id
+    name    = aws_launch_template.lt.name
     version = "$Latest"
   }
 
