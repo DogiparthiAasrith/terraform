@@ -1,3 +1,12 @@
+locals {
+  common_tags = {
+    CreatedBy   = "Aasrith"
+    Environment = "Dev"
+    Project     = "Week 4"
+    Purpose     = "Training Plan"
+  }
+}
+
 data "aws_ami" "amazon_linux" {
   most_recent = true
   owners      = ["amazon"]
@@ -37,13 +46,9 @@ resource "aws_security_group" "ec2_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = {
-    Name        = "${var.project_name}-ec2-sg"
-    CreatedBy   = "Aasrith"
-    Environment = "Dev"
-    Project     = "Week 4"
-    Purpose     = "Training Plan"
-  }
+  tags = merge(local.common_tags, {
+    Name = "${var.project_name}-ec2-sg"
+  })
 }
 
 resource "aws_launch_template" "lt" {
@@ -63,14 +68,14 @@ resource "aws_launch_template" "lt" {
   tag_specifications {
     resource_type = "instance"
 
-    tags = {
-      Name        = "${var.project_name}-instance"
-      CreatedBy   = "Aasrith"
-      Environment = "Dev"
-      Project     = "Week 4"
-      Purpose     = "Training Plan"
-    }
+    tags = merge(local.common_tags, {
+      Name = "${var.project_name}-instance"
+    })
   }
+
+  tags = merge(local.common_tags, {
+    Name = "${var.project_name}-lt"
+  })
 }
 
 resource "aws_autoscaling_group" "asg" {

@@ -1,3 +1,12 @@
+locals {
+  common_tags = {
+    CreatedBy   = "Aasrith"
+    Environment = "Dev"
+    Project     = "Week 4"
+    Purpose     = "Training Plan"
+  }
+}
+
 resource "aws_lb" "alb" {
   name               = "${var.project_name}-alb"
   load_balancer_type = "application"
@@ -12,13 +21,9 @@ resource "aws_lb" "alb" {
     enabled = false
   }
 
-  tags = {
-    Name        = "${var.project_name}-alb"
-    CreatedBy   = "Aasrith"
-    Environment = "Dev"
-    Project     = "Week 4"
-    Purpose     = "Training Plan"
-  }
+  tags = merge(local.common_tags, {
+    Name = "${var.project_name}-alb"
+  })
 }
 
 resource "aws_security_group" "alb_sg" {
@@ -42,13 +47,9 @@ resource "aws_security_group" "alb_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = {
-    Name        = "${var.project_name}-alb-sg"
-    CreatedBy   = "Aasrith"
-    Environment = "Dev"
-    Project     = "Week 4"
-    Purpose     = "Training Plan"
-  }
+  tags = merge(local.common_tags, {
+    Name = "${var.project_name}-alb-sg"
+  })
 }
 
 resource "aws_lb_target_group" "tg" {
@@ -65,13 +66,9 @@ resource "aws_lb_target_group" "tg" {
     unhealthy_threshold = 2
   }
 
-  tags = {
-    Name        = "${var.project_name}-tg"
-    CreatedBy   = "Aasrith"
-    Environment = "Dev"
-    Project     = "Week 4"
-    Purpose     = "Training Plan"
-  }
+  tags = merge(local.common_tags, {
+    Name = "${var.project_name}-tg"
+  })
 }
 
 resource "aws_lb_listener" "http" {
