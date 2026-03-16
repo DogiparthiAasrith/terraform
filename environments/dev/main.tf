@@ -25,4 +25,5 @@ module "autoscaling" {
   vpc_id           = module.vpc.vpc_id
   alb_sg_id        = module.alb.alb_sg_id
   vpc_cidr         = module.vpc.vpc_cidr
+  eice_sg_id       = module.vpc.eice_sg_id
 }

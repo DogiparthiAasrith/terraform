@@ -32,3 +32,8 @@ variable "vpc_cidr" {
   description = "CIDR block of the VPC for security group rules"
   type        = string
 }
+
+variable "eice_sg_id" {
+  description = "Security group ID of the EC2 Instance Connect Endpoint"
+  type        = string
+}

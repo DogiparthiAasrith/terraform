@@ -22,11 +22,11 @@ resource "aws_security_group" "ec2_sg" {
   }
 
   ingress {
-    description = "Allow SSH from within VPC for EICE"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr]
+    description     = "Allow SSH from EICE security group"
+    from_port       = 22
+    to_port         = 22
+    protocol        = "tcp"
+    security_groups = [var.eice_sg_id]
   }
 
   egress {

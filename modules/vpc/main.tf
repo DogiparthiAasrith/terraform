@@ -1,5 +1,7 @@
 resource "aws_vpc" "main" {
-  cidr_block = var.vpc_cidr
+  cidr_block           = var.vpc_cidr
+  enable_dns_support   = true
+  enable_dns_hostnames = true
 
   tags = {
     Name      = "${var.project_name}-${var.environment}-vpc"
@@ -88,8 +90,27 @@ resource "aws_route_table_association" "public2" {
   route_table_id = aws_route_table.public.id
 }
 
+resource "aws_security_group" "eice_sg" {
+  name        = "${var.project_name}-eice-sg"
+  description = "Security group for EC2 Instance Connect Endpoint"
+  vpc_id      = aws_vpc.main.id
+
+  egress {
+    description = "Allow SSH outbound to VPC"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr]
+  }
+
+  tags = {
+    CreatedBy = "Aasrith"
+  }
+}
+
 resource "aws_ec2_instance_connect_endpoint" "eice" {
-  subnet_id = aws_subnet.private1.id
+  subnet_id          = aws_subnet.private1.id
+  security_group_ids = [aws_security_group.eice_sg.id]
 
   tags = {
     Name      = "${var.project_name}-eice"
