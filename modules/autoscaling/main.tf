@@ -21,24 +21,15 @@ resource "aws_launch_template" "lt" {
   name_prefix = "${var.project_name}-lt-"
   
   image_id      = data.aws_ami.amazon_linux.id
-  instance_type = "t3.micro" # Often required in restricted cloud environments
+  instance_type = "t2.micro"
 
   vpc_security_group_ids = [var.security_group_id]
 
-  # Enforce IMDSv2 (Standard security policy requirement)
+  # Enforce IMDSv2 (Standard Security requirement)
   metadata_options {
     http_endpoint               = "enabled"
     http_tokens                 = "required"
     http_put_response_hop_limit = 1
-  }
-
-  # Encrypted volumes are often required by Service Control Policies (SCPs)
-  block_device_mappings {
-    device_name = "/dev/xvda"
-    ebs {
-      volume_size = 8
-      encrypted   = true
-    }
   }
 
   user_data = base64encode(<<-EOF
@@ -48,17 +39,30 @@ resource "aws_launch_template" "lt" {
               EOF
   )
 
-  # Instance tags in LT are checked during the RunInstances call
+  # Strict policies often require ALL resources created by RunInstances to be tagged
   tag_specifications {
     resource_type = "instance"
     tags = merge(local.common_tags, {
-      Name = "${var.project_name}-${var.environment}-instance"
+      Name = "${var.project_name}-instance"
     })
   }
 
-  # Ensure the LT itself has all mandatory tags
+  tag_specifications {
+    resource_type = "volume"
+    tags = merge(local.common_tags, {
+      Name = "${var.project_name}-instance-volume"
+    })
+  }
+
+  tag_specifications {
+    resource_type = "network-interface"
+    tags = merge(local.common_tags, {
+      Name = "${var.project_name}-instance-nic"
+    })
+  }
+
   tags = merge(local.common_tags, {
-    Name = "${var.project_name}-${var.environment}-lt"
+    Name = "${var.project_name}-lt"
   })
 
   update_default_version = true
@@ -69,7 +73,7 @@ resource "aws_launch_template" "lt" {
 }
 
 resource "aws_autoscaling_group" "asg" {
-  name                = "${var.project_name}-${var.environment}-asg"
+  name                = "${var.project_name}-asg"
   vpc_zone_identifier = var.private_subnets
   desired_capacity    = 2
   max_size            = 3
@@ -78,11 +82,11 @@ resource "aws_autoscaling_group" "asg" {
 
   launch_template {
     id      = aws_launch_template.lt.id
-    version = "$Default"
+    version = "$Latest"
   }
 
   dynamic "tag" {
-    for_each = merge(local.common_tags, { Name = "${var.project_name}-${var.environment}-asg" })
+    for_each = merge(local.common_tags, { Name = "${var.project_name}-asg" })
     content {
       key                 = tag.key
       value               = tag.value
