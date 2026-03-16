@@ -18,7 +18,7 @@ data "aws_ami" "amazon_linux" {
 }
 
 resource "aws_launch_template" "lt" {
-  name = "${var.project_name}-lt"
+  name_prefix = "${var.project_name}-lt-"
   
   image_id      = data.aws_ami.amazon_linux.id
   instance_type = "t2.micro"
