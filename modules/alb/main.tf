@@ -1,8 +1,8 @@
 locals {
   common_tags = {
     CreatedBy   = "Aasrith"
-    Environment = "Dev"
-    Project     = "Week 4"
+    Environment = "dev"
+    Project     = "week4"
     Purpose     = "Training Plan"
   }
 }

@@ -1,8 +1,8 @@
 locals {
   common_tags = {
     CreatedBy   = "Aasrith"
-    Environment = "Dev"
-    Project     = "Week 4"
+    Environment = "dev"
+    Project     = "week4"
     Purpose     = "Training Plan"
   }
 }
@@ -105,13 +105,13 @@ resource "aws_autoscaling_group" "asg" {
 
   tag {
     key                 = "Environment"
-    value               = "Dev"
+    value               = "dev"
     propagate_at_launch = true
   }
 
   tag {
     key                 = "Project"
-    value               = "Week 4"
+    value               = "week4"
     propagate_at_launch = true
   }
 
