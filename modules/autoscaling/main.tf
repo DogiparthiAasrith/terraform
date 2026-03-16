@@ -1,6 +1,16 @@
+data "aws_ami" "amazon_linux" {
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+  }
+}
+
 resource "aws_launch_template" "lt" {
   name_prefix   = "${var.project_name}-lt"
-  image_id      = "ami-0f58b397bc5c1f2e8"
+  image_id      = data.aws_ami.amazon_linux.id
   instance_type = "t2.micro"
 
   tag_specifications {
