@@ -4,6 +4,14 @@ resource "aws_lb" "alb" {
   subnets            = var.public_subnets
   security_groups    = [aws_security_group.alb_sg.id]
 
+  drop_invalid_header_fields = true
+  enable_deletion_protection = false
+
+  access_logs {
+    bucket  = ""
+    enabled = false
+  }
+
   tags = {
     CreatedBy = "Aasrith"
   }
@@ -15,6 +23,7 @@ resource "aws_security_group" "alb_sg" {
   vpc_id      = var.vpc_id
 
   ingress {
+    description = "Allow HTTP inbound traffic"
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
@@ -22,6 +31,7 @@ resource "aws_security_group" "alb_sg" {
   }
 
   egress {
+    description = "Allow all outbound traffic"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
